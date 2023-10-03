@@ -205,6 +205,40 @@ class StridePrefetcher(QueuedPrefetcher):
         RandomRP(), "Replacement policy of the PC table"
     )
 
+class PAStridePrefetcher(QueuedPrefetcher):
+    type = "PAStridePrefetcher"
+    cxx_class = "gem5::prefetch::PAStride"
+    cxx_header = "mem/cache/prefetch/pa_stride.hh"
+
+    # Do not consult stride prefetcher on instruction accesses
+    on_inst = False
+
+    confidence_counter_bits = Param.Unsigned(
+        3, "Number of bits of the confidence counter"
+    )
+    initial_confidence = Param.Unsigned(
+        4, "Starting confidence of new entries"
+    )
+    confidence_threshold = Param.Percent(
+        50, "Prefetch generation confidence threshold"
+    )
+
+    use_requestor_id = Param.Bool(True, "Use requestor id based history")
+
+    degree = Param.Int(4, "Number of prefetches to generate")
+
+    table_assoc = Param.Int(4, "Associativity of the PC table")
+    table_entries = Param.MemorySize("64", "Number of entries of the PC table")
+    table_indexing_policy = Param.BaseIndexingPolicy(
+        StridePrefetcherHashedSetAssociative(
+            entry_size=1, assoc=Parent.table_assoc, size=Parent.table_entries
+        ),
+        "Indexing policy of the PC table",
+    )
+    table_replacement_policy = Param.BaseReplacementPolicy(
+        RandomRP(), "Replacement policy of the PC table"
+    )
+
 
 class TaggedPrefetcher(QueuedPrefetcher):
     type = "TaggedPrefetcher"
@@ -271,6 +305,65 @@ class SignaturePathPrefetcher(QueuedPrefetcher):
     type = "SignaturePathPrefetcher"
     cxx_class = "gem5::prefetch::SignaturePath"
     cxx_header = "mem/cache/prefetch/signature_path.hh"
+
+    signature_shift = Param.UInt8(
+        3, "Number of bits to shift when calculating a new signature"
+    )
+    signature_bits = Param.UInt16(12, "Size of the signature, in bits")
+    signature_table_entries = Param.MemorySize(
+        "1024", "Number of entries of the signature table"
+    )
+    signature_table_assoc = Param.Unsigned(
+        2, "Associativity of the signature table"
+    )
+    signature_table_indexing_policy = Param.BaseIndexingPolicy(
+        SetAssociative(
+            entry_size=1,
+            assoc=Parent.signature_table_assoc,
+            size=Parent.signature_table_entries,
+        ),
+        "Indexing policy of the signature table",
+    )
+    signature_table_replacement_policy = Param.BaseReplacementPolicy(
+        LRURP(), "Replacement policy of the signature table"
+    )
+
+    num_counter_bits = Param.UInt8(
+        3, "Number of bits of the saturating counters"
+    )
+    pattern_table_entries = Param.MemorySize(
+        "4096", "Number of entries of the pattern table"
+    )
+    pattern_table_assoc = Param.Unsigned(
+        1, "Associativity of the pattern table"
+    )
+    strides_per_pattern_entry = Param.Unsigned(
+        4, "Number of strides stored in each pattern entry"
+    )
+    pattern_table_indexing_policy = Param.BaseIndexingPolicy(
+        SetAssociative(
+            entry_size=1,
+            assoc=Parent.pattern_table_assoc,
+            size=Parent.pattern_table_entries,
+        ),
+        "Indexing policy of the pattern table",
+    )
+    pattern_table_replacement_policy = Param.BaseReplacementPolicy(
+        LRURP(), "Replacement policy of the pattern table"
+    )
+
+    prefetch_confidence_threshold = Param.Float(
+        0.5, "Minimum confidence to issue prefetches"
+    )
+    lookahead_confidence_threshold = Param.Float(
+        0.75, "Minimum confidence to continue exploring lookahead entries"
+    )
+
+
+class PASignaturePathPrefetcher(QueuedPrefetcher):
+    type = "PASignaturePathPrefetcher"
+    cxx_class = "gem5::prefetch::PASignaturePath"
+    cxx_header = "mem/cache/prefetch/pa_signature_path.hh"
 
     signature_shift = Param.UInt8(
         3, "Number of bits to shift when calculating a new signature"
@@ -521,6 +614,71 @@ class IrregularStreamBufferPrefetcher(QueuedPrefetcher):
     )
 
 
+class PAIrregularStreamBufferPrefetcher(QueuedPrefetcher):
+    type = "PAIrregularStreamBufferPrefetcher"
+    cxx_class = "gem5::prefetch::PAIrregularStreamBuffer"
+    cxx_header = "mem/cache/prefetch/pa_irregular_stream_buffer.hh"
+
+    num_counter_bits = Param.Unsigned(
+        2, "Number of bits of the confidence counter"
+    )
+    chunk_size = Param.Unsigned(
+        256, "Maximum number of addresses in a temporal stream"
+    )
+    degree = Param.Unsigned(4, "Number of prefetches to generate")
+    training_unit_assoc = Param.Unsigned(
+        128, "Associativity of the training unit"
+    )
+    training_unit_entries = Param.MemorySize(
+        "128", "Number of entries of the training unit"
+    )
+    training_unit_indexing_policy = Param.BaseIndexingPolicy(
+        SetAssociative(
+            entry_size=1,
+            assoc=Parent.training_unit_assoc,
+            size=Parent.training_unit_entries,
+        ),
+        "Indexing policy of the training unit",
+    )
+    training_unit_replacement_policy = Param.BaseReplacementPolicy(
+        LRURP(), "Replacement policy of the training unit"
+    )
+
+    prefetch_candidates_per_entry = Param.Unsigned(
+        16, "Number of prefetch candidates stored in a SP-AMC entry"
+    )
+    address_map_cache_assoc = Param.Unsigned(
+        128, "Associativity of the PS/SP AMCs"
+    )
+    address_map_cache_entries = Param.MemorySize(
+        "128", "Number of entries of the PS/SP AMCs"
+    )
+    ps_address_map_cache_indexing_policy = Param.BaseIndexingPolicy(
+        SetAssociative(
+            entry_size=1,
+            assoc=Parent.address_map_cache_assoc,
+            size=Parent.address_map_cache_entries,
+        ),
+        "Indexing policy of the Physical-to-Structural Address Map Cache",
+    )
+    ps_address_map_cache_replacement_policy = Param.BaseReplacementPolicy(
+        LRURP(),
+        "Replacement policy of the Physical-to-Structural Address Map Cache",
+    )
+    sp_address_map_cache_indexing_policy = Param.BaseIndexingPolicy(
+        SetAssociative(
+            entry_size=1,
+            assoc=Parent.address_map_cache_assoc,
+            size=Parent.address_map_cache_entries,
+        ),
+        "Indexing policy of the Structural-to-Physical Address Mao Cache",
+    )
+    sp_address_map_cache_replacement_policy = Param.BaseReplacementPolicy(
+        LRURP(),
+        "Replacement policy of the Structural-to-Physical Address Map Cache",
+    )
+
+
 class SlimAccessMapPatternMatching(AccessMapPatternMatching):
     start_degree = 2
     limit_stride = 4
@@ -550,6 +708,35 @@ class BOPPrefetcher(QueuedPrefetcher):
     type = "BOPPrefetcher"
     cxx_class = "gem5::prefetch::BOP"
     cxx_header = "mem/cache/prefetch/bop.hh"
+    score_max = Param.Unsigned(31, "Max. score to update the best offset")
+    round_max = Param.Unsigned(100, "Max. round to update the best offset")
+    bad_score = Param.Unsigned(10, "Score at which the HWP is disabled")
+    rr_size = Param.Unsigned(64, "Number of entries of each RR bank")
+    tag_bits = Param.Unsigned(12, "Bits used to store the tag")
+    offset_list_size = Param.Unsigned(
+        46, "Number of entries in the offsets list"
+    )
+    negative_offsets_enable = Param.Bool(
+        True,
+        "Initialize the offsets list also with negative values \
+                (i.e. the table will have half of the entries with positive \
+                offsets and the other half with negative ones)",
+    )
+    delay_queue_enable = Param.Bool(True, "Enable the delay queue")
+    delay_queue_size = Param.Unsigned(
+        15, "Number of entries in the delay queue"
+    )
+    delay_queue_cycles = Param.Cycles(
+        60,
+        "Cycles to delay a write in the left RR table from the delay \
+                queue",
+    )
+
+
+class PABOPPrefetcher(QueuedPrefetcher):
+    type = "PABOPPrefetcher"
+    cxx_class = "gem5::prefetch::PABOP"
+    cxx_header = "mem/cache/prefetch/pa_bop.hh"
     score_max = Param.Unsigned(31, "Max. score to update the best offset")
     round_max = Param.Unsigned(100, "Max. round to update the best offset")
     bad_score = Param.Unsigned(10, "Score at which the HWP is disabled")

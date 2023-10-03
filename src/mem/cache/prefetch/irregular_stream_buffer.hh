@@ -54,6 +54,7 @@ namespace prefetch
 
 class IrregularStreamBuffer : public Queued
 {
+  protected:
     /** Size in bytes of a temporal stream */
     const size_t chunkSize;
     /** Number of prefetch candidates per Physical-to-Structural entry */

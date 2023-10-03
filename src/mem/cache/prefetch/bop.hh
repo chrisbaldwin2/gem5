@@ -52,7 +52,7 @@ namespace prefetch
 
 class BOP : public Queued
 {
-    private:
+    protected:
 
         enum RRWay
         {

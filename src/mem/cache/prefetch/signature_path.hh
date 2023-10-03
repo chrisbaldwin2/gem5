@@ -61,7 +61,6 @@ class SignaturePath : public Queued
     typedef uint16_t signature_t;
     /** Stride type */
     typedef int16_t stride_t;
-
     /** Number of strides stored in each pattern entry */
     const unsigned stridesPerPatternEntry;
     /** Number of bits to shift when generating a new signature */
