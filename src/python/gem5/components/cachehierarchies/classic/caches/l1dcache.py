@@ -26,7 +26,7 @@
 
 from .....utils.override import *
 
-from m5.objects import Cache, BasePrefetcher, StridePrefetcher
+from m5.objects import Cache, BasePrefetcher, StridePrefetcher, MultiPrefetcher, BOPPrefetcher, IrregularStreamBufferPrefetcher, SignaturePathPrefetcher
 
 from typing import Type
 
@@ -49,7 +49,7 @@ class L1DCache(Cache):
         mshrs: int = 16,
         tgts_per_mshr: int = 20,
         writeback_clean: bool = False,
-        PrefetcherCls: Type[BasePrefetcher] = StridePrefetcher,
+        PrefetcherCls: Type[MultiPrefetcher] = MultiPrefetcher,
     ):
         super().__init__()
         self.size = size
@@ -60,4 +60,4 @@ class L1DCache(Cache):
         self.mshrs = mshrs
         self.tgts_per_mshr = tgts_per_mshr
         self.writeback_clean = writeback_clean
-        self.prefetcher = PrefetcherCls()
+        self.prefetcher = PrefetcherCls(prefetchers=[BOPPrefetcher(), IrregularStreamBufferPrefetcher(), SignaturePathPrefetcher(), StridePrefetcher()])
