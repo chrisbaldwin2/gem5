@@ -119,18 +119,19 @@ args = parser.parse_args()
 # Setting up all the fixed system parameters here
 # Caches: MESI Two Level Cache Hierarchy
 
-from gem5.components.cachehierarchies.ruby.mesi_two_level_cache_hierarchy import (
-    MESITwoLevelCacheHierarchy,
+# from gem5.components.cachehierarchies.ruby.mesi_two_level_cache_hierarchy import (
+from gem5.components.cachehierarchies.classic.private_l1_shared_l2_cache_hierarchy import (
+    PrivateL1SharedL2CacheHierarchy,
 )
 
-cache_hierarchy = MESITwoLevelCacheHierarchy(
+cache_hierarchy = PrivateL1SharedL2CacheHierarchy(
     l1d_size="32kB",
     l1d_assoc=8,
     l1i_size="32kB",
     l1i_assoc=8,
     l2_size="256kB",
     l2_assoc=16,
-    num_l2_banks=2,
+    # num_l2_banks=2,
 )
 
 # Memory: Dual Channel DDR4 2400 DRAM device.
