@@ -49,7 +49,7 @@ class L1DCache(Cache):
         mshrs: int = 16,
         tgts_per_mshr: int = 20,
         writeback_clean: bool = False,
-        PrefetcherCls: Type[MultiPrefetcher] = MultiPrefetcher,
+        PrefetcherCls: Type[BasePrefetcher] = SignaturePathPrefetcher,
     ):
         super().__init__()
         self.size = size
@@ -60,4 +60,4 @@ class L1DCache(Cache):
         self.mshrs = mshrs
         self.tgts_per_mshr = tgts_per_mshr
         self.writeback_clean = writeback_clean
-        self.prefetcher = PrefetcherCls(prefetchers=[BOPPrefetcher(use_virtual_addresses=False), IrregularStreamBufferPrefetcher(use_virtual_addresses=False), SignaturePathPrefetcher(use_virtual_addresses=False), StridePrefetcher(use_virtual_addresses=False)])
+        self.prefetcher = PrefetcherCls(use_virtual_addresses=False)
