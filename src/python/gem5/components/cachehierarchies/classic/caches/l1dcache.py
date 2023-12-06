@@ -49,7 +49,7 @@ class L1DCache(Cache):
         mshrs: int = 16,
         tgts_per_mshr: int = 20,
         writeback_clean: bool = False,
-        PrefetcherCls: Type[BasePrefetcher] = SignaturePathPrefetcher,
+        PrefetcherCls: Type[BasePrefetcher] = BOPPrefetcher,
     ):
         super().__init__()
         self.size = size
