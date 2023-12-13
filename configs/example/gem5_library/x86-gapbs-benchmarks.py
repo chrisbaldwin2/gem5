@@ -148,6 +148,21 @@ cache_hierarchy = MESITwoLevelCacheHierarchy(
     l2_assoc=16,
     num_l2_banks=2,
 )
+
+from gem5.components.cachehierarchies.classic.private_l1_shared_l2_cache_hierarchy import (
+    PrivateL1SharedL2CacheHierarchy,
+)
+
+cache_hierarchy = PrivateL1SharedL2CacheHierarchy(
+    l1d_size="32kB",
+    l1d_assoc=8,
+    l1i_size="32kB",
+    l1i_assoc=8,
+    l2_size="256kB",
+    l2_assoc=16,
+    # num_l2_banks=2,
+)
+
 # Memory: Dual Channel DDR4 2400 DRAM device.
 # The X86 board only supports 3 GB of main memory.
 
@@ -262,9 +277,14 @@ print("Done with the simulation")
 print()
 print("Performance statistics:")
 
+<<<<<<< Updated upstream
 print(
     f"Simulated time in ROI: {(end_tick - start_tick) / 1000000000000.0:.2f}s"
 )
+=======
+start_tick = 0
+print("Simulated time in ROI: %.2fs" % ((end_tick - start_tick) / 1e12))
+>>>>>>> Stashed changes
 print(
     "Ran a total of", simulator.get_current_tick() / 1e12, "simulated seconds"
 )
