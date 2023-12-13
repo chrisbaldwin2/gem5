@@ -277,14 +277,8 @@ print("Done with the simulation")
 print()
 print("Performance statistics:")
 
-<<<<<<< Updated upstream
-print(
-    f"Simulated time in ROI: {(end_tick - start_tick) / 1000000000000.0:.2f}s"
-)
-=======
 start_tick = 0
 print("Simulated time in ROI: %.2fs" % ((end_tick - start_tick) / 1e12))
->>>>>>> Stashed changes
 print(
     "Ran a total of", simulator.get_current_tick() / 1e12, "simulated seconds"
 )
